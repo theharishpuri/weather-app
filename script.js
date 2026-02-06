@@ -1,45 +1,32 @@
-// Get elements
-const searchBtn = document.getElementById("searchBtn");
-const cityInput = document.getElementById("cityInput");
+async function getWeather() {
 
-const cityName = document.getElementById("city");
-const temp = document.getElementById("temp");
-const desc = document.getElementById("desc");
-const humidity = document.getElementById("humidity");
+    const city = document.getElementById("city").value;
+    const apiKey = "YOUR_API_KEY_HERE";
 
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
 
-// When button clicked
-searchBtn.addEventListener("click", () => {
-    const city = cityInput.value.trim();
+    const response = await fetch(url);
+    const data = await response.json();
 
-    if (city === "") {
-        alert("Please enter a city name");
-        return;
+    const result = document.getElementById("result");
+
+    if (data.cod === 200) {
+
+        const icon = data.weather[0].icon;
+
+        result.innerHTML = `
+            <h2>${data.name}</h2>
+            <img src="https://openweathermap.org/img/wn/${icon}@2x.png">
+            <div class="temp">${data.main.temp}°C</div>
+            <p>${data.weather[0].main}</p>
+
+            <div class="details">
+                <span>💧 ${data.main.humidity}%</span>
+                <span>🌬 ${data.wind.speed} m/s</span>
+            </div>
+        `;
     }
-
-    getWeather(city);
-});
-
-
-// Function to fetch weather
-async function getWeather(city) {
-    const apiKey = "57e14c8e8dc38da37b4437e1115bfb36"; // we will add this next step
-
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
-
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-
-        // Update UI
-        cityName.innerText = data.name;
-        temp.innerText = `Temperature: ${data.main.temp} °C`;
-        desc.innerText = `Condition: ${data.weather[0].description}`;
-        humidity.innerText = `Humidity: ${data.main.humidity}%`;
-
-    } catch (error) {
-        alert("City not found!");
-        console.log(error);
+    else {
+        result.innerHTML = "City not found ❌";
     }
 }
-
